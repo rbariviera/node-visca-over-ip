@@ -15,10 +15,14 @@ var __read = (this && this.__read) || function (o, n) {
     }
     return ar;
 };
-var __spreadArray = (this && this.__spreadArray) || function (to, from) {
-    for (var i = 0, il = from.length, j = to.length; i < il; i++, j++)
-        to[j] = from[i];
-    return to;
+var __spreadArray = (this && this.__spreadArray) || function (to, from, pack) {
+    if (pack || arguments.length === 2) for (var i = 0, l = from.length, ar; i < l; i++) {
+        if (ar || !(i in from)) {
+            if (!ar) ar = Array.prototype.slice.call(from, 0, i);
+            ar[i] = from[i];
+        }
+    }
+    return to.concat(ar || Array.prototype.slice.call(from));
 };
 var __values = (this && this.__values) || function(o) {
     var s = typeof Symbol === "function" && Symbol.iterator, m = s && o[s], i = 0;
@@ -31,7 +35,7 @@ var __values = (this && this.__values) || function(o) {
     };
     throw new TypeError(s ? "Object is not iterable." : "Symbol.iterator is not defined.");
 };
-exports.__esModule = true;
+Object.defineProperty(exports, "__esModule", { value: true });
 exports.ViscaCamera = void 0;
 var buffer_1 = require("buffer");
 var Command_1 = require("./Command");
@@ -40,6 +44,8 @@ var dgram = require('dgram');
 var ViscaCamera = /** @class */ (function () {
     function ViscaCamera(ip, port) {
         var _this = this;
+        //==================== Commands ====================
+        this.packet_counter = 0;
         this.ip = ip;
         this.port = port;
         this.connected = true;
@@ -65,7 +71,7 @@ var ViscaCamera = /** @class */ (function () {
         });
         this.client.on('message', function (data) {
             _this.connected = false;
-            var command = Command_1.ViscaCommand.fromPacket(__spreadArray([], __read(data)));
+            var command = Command_1.ViscaCommand.fromPacket(__spreadArray([], __read(data), false));
             _this.onData(command);
         });
         this.client.on('error', function (err) {
@@ -92,10 +98,31 @@ var ViscaCamera = /** @class */ (function () {
         this.client = dgram.createSocket('udp4');
         this.client.connect(this.port, this.ip, function () { });
     };
-    //==================== Commands ====================
     ViscaCamera.prototype.sendDirect = function (data) {
-        var message = buffer_1.Buffer.from(data.toPacket());
-        this.client.send(message);
+        var payload = buffer_1.Buffer.from(data.toPacket());
+        var buffer = buffer_1.Buffer.alloc(payload.length + 8);
+        // add packet wrapper / prepend
+        // @link https://github.com/bitfocus/companion-module-sony-visca/blob/e334d2c0be50ba4281076c97997f48c785ccf658/src/visca.js#L22
+        var type = buffer_1.Buffer.from([data.messageType, 0x00]);
+        type.copy(buffer);
+        if (this.packet_counter == 0xffffffff) {
+            this.packet_counter = 0;
+            // Reset sequence number
+            var resetBuffer = buffer_1.Buffer.alloc(9);
+            resetBuffer.write('020000010000000001', 'hex');
+            this.client.send(resetBuffer);
+        }
+        this.packet_counter = this.packet_counter + 1;
+        buffer.writeUInt16BE(payload.length, 2);
+        buffer.writeUInt32BE(this.packet_counter, 4);
+        if (typeof payload == "string") {
+            buffer.write(payload, 8, "binary");
+        }
+        else if (typeof payload == "object" && payload instanceof buffer_1.Buffer) {
+            payload.copy(buffer, 8);
+        }
+        console.log(buffer.toString("hex"));
+        this.client.send(buffer);
     };
     ViscaCamera.prototype.sendCommand = function (command) {
         // this.sendRaw(command.toPacket());
@@ -263,7 +290,7 @@ var ViscaCamera = /** @class */ (function () {
         catch (e_1_1) { e_1 = { error: e_1_1 }; }
         finally {
             try {
-                if (_c && !_c.done && (_a = _b["return"])) _a.call(_b);
+                if (_c && !_c.done && (_a = _b.return)) _a.call(_b);
             }
             finally { if (e_1) throw e_1.error; }
         }

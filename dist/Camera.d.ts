@@ -1,4 +1,3 @@
-/// <reference types="node" />
 import { Socket } from 'dgram';
 import { ViscaCommand } from './Command';
 export declare class ViscaCamera {
@@ -22,6 +21,7 @@ export declare class ViscaCamera {
     on(eventType: ViscaCameraEventTypes, handler: (...args: any[]) => void): void;
     _handle(eventType: ViscaCameraEventTypes, ...data: any[]): void;
     reconnect(): void;
+    private packet_counter;
     private sendDirect;
     sendCommand(command: ViscaCommand): void;
     onData(viscaCommand: ViscaCommand): void;
@@ -35,5 +35,5 @@ export declare class ViscaCamera {
     _processQueue(): void;
     _expireOldCommands(): void;
 }
-declare type ViscaCameraEventTypes = 'connected' | 'closed' | 'error';
+type ViscaCameraEventTypes = 'connected' | 'closed' | 'error';
 export {};

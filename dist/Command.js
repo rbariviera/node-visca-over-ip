@@ -15,10 +15,14 @@ var __read = (this && this.__read) || function (o, n) {
     }
     return ar;
 };
-var __spreadArray = (this && this.__spreadArray) || function (to, from) {
-    for (var i = 0, il = from.length, j = to.length; i < il; i++, j++)
-        to[j] = from[i];
-    return to;
+var __spreadArray = (this && this.__spreadArray) || function (to, from, pack) {
+    if (pack || arguments.length === 2) for (var i = 0, l = from.length, ar; i < l; i++) {
+        if (ar || !(i in from)) {
+            if (!ar) ar = Array.prototype.slice.call(from, 0, i);
+            ar[i] = from[i];
+        }
+    }
+    return to.concat(ar || Array.prototype.slice.call(from));
 };
 var __values = (this && this.__values) || function(o) {
     var s = typeof Symbol === "function" && Symbol.iterator, m = s && o[s], i = 0;
@@ -31,10 +35,10 @@ var __values = (this && this.__values) || function(o) {
     };
     throw new TypeError(s ? "Object is not iterable." : "Symbol.iterator is not defined.");
 };
-exports.__esModule = true;
+Object.defineProperty(exports, "__esModule", { value: true });
 exports.ViscaCommand = void 0;
 var Constants_1 = require("./Constants");
-var utils = require("./utils");
+var utils = require("./Utils");
 var ViscaCommand = /** @class */ (function () {
     function ViscaCommand(settings) {
         this.messageType = settings.messageType;
@@ -47,7 +51,7 @@ var ViscaCommand = /** @class */ (function () {
         this.events[eventType] = handler;
     };
     ViscaCommand.prototype.toPacket = function () {
-        var header = 0x81;
+        var header = 0x81; // camera ID = 1
         var qq = this.messageType;
         var rr = this.dataType;
         if (rr > 0)
@@ -55,16 +59,16 @@ var ViscaCommand = /** @class */ (function () {
                 header,
                 qq,
                 rr
-            ], __read(this.data)), [
+            ], __read(this.data), false), [
                 0xff
-            ]);
+            ], false);
         else
             return __spreadArray(__spreadArray([
                 header,
                 qq
-            ], __read(this.data)), [
+            ], __read(this.data), false), [
                 0xff
-            ]);
+            ], false);
     };
     ViscaCommand.prototype._handle = function (eventType) {
         var data = [];
@@ -86,7 +90,7 @@ var ViscaCommand = /** @class */ (function () {
         catch (e_1_1) { e_1 = { error: e_1_1 }; }
         finally {
             try {
-                if (data_1_1 && !data_1_1.done && (_a = data_1["return"])) _a.call(data_1);
+                if (data_1_1 && !data_1_1.done && (_a = data_1.return)) _a.call(data_1);
             }
             finally { if (e_1) throw e_1.error; }
         }
@@ -139,15 +143,15 @@ var ViscaCommand = /** @class */ (function () {
             Constants_1.Constants.CAM_POWER,
             rawValue
         ];
-        var description = "camera power " + (state ? 'on' : 'off');
+        var description = "camera power ".concat(state ? 'on' : 'off');
         return ViscaCommand.cameraCommand(subCommand, description);
     };
     ViscaCommand.cameraPowerAutoOff = function (time) {
         if (time === void 0) { time = 0; }
         var subCommand = __spreadArray([
             Constants_1.Constants.CAM_SLEEP_TIME
-        ], __read(utils.i2v(time)));
-        var description = "camera power auto off after " + time + " minutes";
+        ], __read(utils.i2v(time)), false);
+        var description = "camera power auto off after ".concat(time, " minutes");
         return ViscaCommand.cameraCommand(subCommand, description);
     };
     //------------------ PRESETS ------------------
@@ -158,7 +162,7 @@ var ViscaCommand = /** @class */ (function () {
             Constants_1.Constants.DATA_MEMORY_RESET,
             preset
         ];
-        var description = "camera preset " + preset + " reset";
+        var description = "camera preset ".concat(preset, " reset");
         return ViscaCommand.cameraCommand(subCommand, description);
     };
     ViscaCommand.cameraPresetSet = function (preset) {
@@ -168,7 +172,7 @@ var ViscaCommand = /** @class */ (function () {
             Constants_1.Constants.DATA_MEMORY_SET,
             preset
         ];
-        var description = "camera preset " + preset + " set";
+        var description = "camera preset ".concat(preset, " set");
         return ViscaCommand.cameraCommand(subCommand, description);
     };
     ViscaCommand.cameraPresetRecall = function (preset) {
@@ -178,7 +182,7 @@ var ViscaCommand = /** @class */ (function () {
             Constants_1.Constants.DATA_MEMORY_RECALL,
             preset
         ];
-        var description = "camera preset " + preset + " recall";
+        var description = "camera preset ".concat(preset, " recall");
         return ViscaCommand.cameraCommand(subCommand, description);
     };
     // ------------------ PAN/TILT ------------------
@@ -220,7 +224,7 @@ var ViscaCommand = /** @class */ (function () {
             absrel,
             xSpeed,
             ySpeed
-        ], __read(xPos)), __read(yPos));
+        ], __read(xPos), false), __read(yPos), false);
         var description = 'camera pan/tilt direct';
         return ViscaCommand.operationCommand(subCommand, description);
     };
@@ -246,8 +250,8 @@ var ViscaCommand = /** @class */ (function () {
             Constants_1.Constants.OP_PAN_LIMIT,
             Constants_1.Constants.DATA_RESET,
             corner
-        ], __read(xv)), __read(yv));
-        var description = "camera pan/tilt limit corner " + corner + " set";
+        ], __read(xv), false), __read(yv), false);
+        var description = "camera pan/tilt limit corner ".concat(corner, " set");
         return ViscaCommand.operationCommand(subCommand, description);
     };
     // ------------------ ZOOM ------------------
@@ -286,7 +290,7 @@ var ViscaCommand = /** @class */ (function () {
     ViscaCommand.cameraZoomDirect = function (zoomVal) {
         var subCommand = __spreadArray([
             Constants_1.Constants.CAM_ZOOM_DIRECT
-        ], __read(utils.i2v(zoomVal)));
+        ], __read(utils.i2v(zoomVal)), false);
         var description = 'camera zoom direct';
         return ViscaCommand.cameraCommand(subCommand, description);
     };
@@ -311,7 +315,7 @@ var ViscaCommand = /** @class */ (function () {
         if (speed > -1 && stopfarnear != Constants_1.Constants.DATA_RESET)
             data = (data << 8) + (speed & 7);
         var subCommand = [
-            Constants_1.Constants.CAM_ZOOM,
+            Constants_1.Constants.CAM_FOCUS,
             data
         ];
         return ViscaCommand.cameraCommand(subCommand, description);
@@ -337,7 +341,7 @@ var ViscaCommand = /** @class */ (function () {
     ViscaCommand.cameraFocusDirect = function (focusVal) {
         var subCommand = __spreadArray([
             Constants_1.Constants.CAM_FOCUS_DIRECT
-        ], __read(utils.i2v(focusVal)));
+        ], __read(utils.i2v(focusVal)), false);
         var description = 'camera focus direct';
         return ViscaCommand.cameraCommand(subCommand, description);
     };
@@ -348,7 +352,7 @@ var ViscaCommand = /** @class */ (function () {
             Constants_1.Constants.CAM_FOCUS_AUTO,
             data
         ];
-        var description = "camera autofocus " + (enable ? 'on' : 'off');
+        var description = "camera autofocus ".concat(enable ? 'on' : 'off');
         return ViscaCommand.cameraCommand(subCommand, description);
     };
     ViscaCommand.cameraFocusAutoToggle = function () {
@@ -381,7 +385,7 @@ var ViscaCommand = /** @class */ (function () {
         limit = limit & 0xff00;
         var subCommand = __spreadArray([
             Constants_1.Constants.CAM_FOCUS_NEAR_LIMIT_POS
-        ], __read(utils.i2v(limit)));
+        ], __read(utils.i2v(limit)), false);
         var description = 'camera focus set near limit';
         return ViscaCommand.cameraCommand(subCommand, description);
     };
@@ -392,7 +396,7 @@ var ViscaCommand = /** @class */ (function () {
             Constants_1.Constants.CAM_FOCUS_SENSE_HIGH,
             data
         ];
-        var description = "camera autosensitivity high mode " + (high ? 'on' : 'off');
+        var description = "camera autosensitivity high mode ".concat(high ? 'on' : 'off');
         return ViscaCommand.cameraCommand(subCommand, description);
     };
     /// mode = 0 (on motion), 1 (on interval), 2 (on zoom)
@@ -402,11 +406,11 @@ var ViscaCommand = /** @class */ (function () {
             Constants_1.Constants.CAM_FOCUS_AF_MODE,
             mode
         ];
-        var description = "camera autofocus mode " + [
+        var description = "camera autofocus mode ".concat([
             'on motion',
             'on interval',
             'on zoom'
-        ][mode];
+        ][mode]);
         return ViscaCommand.cameraCommand(subCommand, description);
     };
     ViscaCommand.cameraFocusAutoIntervalTime = function (movementTime, intervalTime) {
@@ -415,7 +419,7 @@ var ViscaCommand = /** @class */ (function () {
         var pqrs = (movementTime << 8) + intervalTime;
         var subCommand = __spreadArray([
             Constants_1.Constants.CAM_FOCUS_AF_INTERVAL
-        ], __read(utils.i2v(pqrs)));
+        ], __read(utils.i2v(pqrs)), false);
         var description = 'camera autofocus interval set';
         return ViscaCommand.cameraCommand(subCommand, description);
     };
@@ -426,7 +430,7 @@ var ViscaCommand = /** @class */ (function () {
             Constants_1.Constants.CAM_FOCUS_IR_CORRECTION,
             data
         ];
-        var description = "camera focus ir correction " + (enable ? 'on' : 'off');
+        var description = "camera focus ir correction ".concat(enable ? 'on' : 'off');
         return ViscaCommand.cameraCommand(subCommand, description);
     };
     // ------------------ FOCUS & ZOOM ------------------
@@ -437,7 +441,7 @@ var ViscaCommand = /** @class */ (function () {
         var f = utils.i2v(focusVal);
         var subCommand = __spreadArray(__spreadArray([
             Constants_1.Constants.CAM_ZOOM_DIRECT
-        ], __read(z)), __read(f));
+        ], __read(z), false), __read(f), false);
         var description = 'camera zoom + focus';
         return ViscaCommand.cameraCommand(subCommand, description);
     };
@@ -449,13 +453,13 @@ var ViscaCommand = /** @class */ (function () {
             Constants_1.Constants.CAM_WB_MODE,
             mode
         ];
-        var description = "camera whitebalance mode set to " + [
+        var description = "camera whitebalance mode set to ".concat([
             'auto',
             'indoor',
             'outdoor',
             'trigger',
             'manual'
-        ][mode];
+        ][mode]);
         return ViscaCommand.cameraCommand(subCommand, description);
     };
     ViscaCommand.cameraWBTrigger = function () {
@@ -491,7 +495,7 @@ var ViscaCommand = /** @class */ (function () {
             gaintype += 0x40;
             subCommand = __spreadArray([
                 gaintype
-            ], __read(utils.i2v(directvalue)));
+            ], __read(utils.i2v(directvalue)), false);
         }
         else {
             subCommand = [
@@ -588,7 +592,7 @@ var ViscaCommand = /** @class */ (function () {
             Constants_1.Constants.CAM_EXP_COMP_ENABLE,
             enable ? Constants_1.Constants.DATA_ONVAL : Constants_1.Constants.DATA_OFFVAL
         ];
-        var description = "camera exposure compenstation " + (enable ? 'on' : 'off');
+        var description = "camera exposure compenstation ".concat(enable ? 'on' : 'off');
         return ViscaCommand.cameraCommand(subCommand, description);
     };
     ViscaCommand._cameraExposureCompensationAdjust = function (resetupdown, description) {
@@ -614,7 +618,7 @@ var ViscaCommand = /** @class */ (function () {
         if (directval === void 0) { directval = 0; }
         var subCommand = __spreadArray([
             Constants_1.Constants.CAM_EXP_COMP_DIRECT
-        ], __read(utils.i2v(directval)));
+        ], __read(utils.i2v(directval)), false);
         var description = 'camera exposure compenstation direct';
         return ViscaCommand.cameraCommand(subCommand, description);
     };
@@ -625,7 +629,7 @@ var ViscaCommand = /** @class */ (function () {
             Constants_1.Constants.CAM_BACKLIGHT,
             enable ? 0x02 : 0x03
         ];
-        var description = "camera backlight compensation " + (enable ? 'on' : 'off');
+        var description = "camera backlight compensation ".concat(enable ? 'on' : 'off');
         return ViscaCommand.cameraCommand(subCommand, description);
     };
     // ------------------ SHUTTER ------------------
@@ -639,7 +643,7 @@ var ViscaCommand = /** @class */ (function () {
         if (directvalue > -1 && directvalue != null) {
             subCommand = __spreadArray([
                 Constants_1.Constants.CAM_SHUTTER_DIRECT
-            ], __read(utils.i2v(directvalue)));
+            ], __read(utils.i2v(directvalue)), false);
         }
         return ViscaCommand.cameraCommand(subCommand, description);
     };
@@ -666,7 +670,7 @@ var ViscaCommand = /** @class */ (function () {
             Constants_1.Constants.CAM_SHUTTER_SLOW_AUTO,
             auto ? Constants_1.Constants.DATA_ONVAL : Constants_1.Constants.DATA_OFFVAL
         ];
-        var description = "camera shutter slow mode " + (auto ? 'on' : 'off');
+        var description = "camera shutter slow mode ".concat(auto ? 'on' : 'off');
         return ViscaCommand.cameraCommand(subCommand, description);
     };
     // ------------------ IRIS ------------------
@@ -680,7 +684,7 @@ var ViscaCommand = /** @class */ (function () {
         if (directvalue > -1 && directvalue != null) {
             subCommand = __spreadArray([
                 Constants_1.Constants.CAM_IRIS_DIRECT
-            ], __read(utils.i2v(directvalue)));
+            ], __read(utils.i2v(directvalue)), false);
         }
         return ViscaCommand.cameraCommand(subCommand, description);
     };
@@ -712,7 +716,7 @@ var ViscaCommand = /** @class */ (function () {
         if (directvalue > -1 && directvalue != null) {
             subCommand = __spreadArray([
                 Constants_1.Constants.CAM_APERTURE_DIRECT
-            ], __read(utils.i2v(directvalue)));
+            ], __read(utils.i2v(directvalue)), false);
         }
         return ViscaCommand.cameraCommand(subCommand, description);
     };
@@ -740,7 +744,7 @@ var ViscaCommand = /** @class */ (function () {
             Constants_1.Constants.CAM_HIRES_ENABLE,
             enable ? Constants_1.Constants.DATA_ONVAL : Constants_1.Constants.DATA_OFFVAL
         ];
-        var description = "camera high res mode " + (enable ? 'on' : 'off');
+        var description = "camera high res mode ".concat(enable ? 'on' : 'off');
         return ViscaCommand.cameraCommand(subCommand, description);
     };
     ViscaCommand.cameraHighSensitivityMode = function (enable) {
@@ -749,7 +753,7 @@ var ViscaCommand = /** @class */ (function () {
             Constants_1.Constants.CAM_HIGH_SENSITIVITY,
             enable ? Constants_1.Constants.DATA_ONVAL : Constants_1.Constants.DATA_OFFVAL
         ];
-        var description = "camera high sensitivity mode " + (enable ? 'on' : 'off');
+        var description = "camera high sensitivity mode ".concat(enable ? 'on' : 'off');
         return ViscaCommand.cameraCommand(subCommand, description);
     };
     /// val = 0..5
@@ -758,7 +762,7 @@ var ViscaCommand = /** @class */ (function () {
             Constants_1.Constants.CAM_NOISE_REDUCTION,
             val
         ];
-        var description = "camera noise reduction to " + val;
+        var description = "camera noise reduction to ".concat(val);
         return ViscaCommand.cameraCommand(subCommand, description);
     };
     /// val = 0..4
@@ -767,7 +771,7 @@ var ViscaCommand = /** @class */ (function () {
             Constants_1.Constants.CAM_GAMMA,
             val
         ];
-        var description = "camera gamma to " + val;
+        var description = "camera gamma to ".concat(val);
         return ViscaCommand.cameraCommand(subCommand, description);
     };
     // ------------------ EFFECTS ------------------
@@ -791,7 +795,7 @@ var ViscaCommand = /** @class */ (function () {
             Constants_1.Constants.CAM_EFFECT_LEVEL,
             level
         ];
-        var description = "camera digital effect intensitity to " + level;
+        var description = "camera digital effect intensitity to ".concat(level);
         return ViscaCommand.cameraCommand(subCommand, description);
     };
     // basic effects
@@ -860,7 +864,7 @@ var ViscaCommand = /** @class */ (function () {
             Constants_1.Constants.CAM_FREEZE,
             mode
         ];
-        var description = "camera freeze " + (enable ? 'on' : 'off');
+        var description = "camera freeze ".concat(enable ? 'on' : 'off');
         return ViscaCommand.cameraCommand(subCommand, description);
     };
     // ------------------ ICR ------------------
@@ -871,7 +875,7 @@ var ViscaCommand = /** @class */ (function () {
             Constants_1.Constants.CAM_ICR,
             mode
         ];
-        var description = "camera ICR " + (enable ? 'on' : 'off');
+        var description = "camera ICR ".concat(enable ? 'on' : 'off');
         return ViscaCommand.cameraCommand(subCommand, description);
     };
     ViscaCommand.cameraICRAuto = function (enable) {
@@ -881,23 +885,23 @@ var ViscaCommand = /** @class */ (function () {
             Constants_1.Constants.CAM_AUTO_ICR,
             mode
         ];
-        var description = "camera auto ICR " + (enable ? 'on' : 'off');
+        var description = "camera auto ICR ".concat(enable ? 'on' : 'off');
         return ViscaCommand.cameraCommand(subCommand, description);
     };
     ViscaCommand.cameraICRAutoThreshold = function (val) {
         if (val === void 0) { val = 0; }
         var subCommand = __spreadArray([
             Constants_1.Constants.CAM_AUTO_ICR_THRESHOLD
-        ], __read(utils.i2v(val)));
-        var description = "camera ICR threshold to " + val;
+        ], __read(utils.i2v(val)), false);
+        var description = "camera ICR threshold to ".concat(val);
         return ViscaCommand.cameraCommand(subCommand, description);
     };
     // ------------------ ID ------------------
     ViscaCommand.cameraIDWrite = function (data) {
         var subCommand = __spreadArray([
             Constants_1.Constants.CAM_ID_WRITE
-        ], __read(utils.i2v(data)));
-        var description = "camera id set to " + data;
+        ], __read(utils.i2v(data)), false);
+        var description = "camera id set to ".concat(data);
         return ViscaCommand.cameraCommand(subCommand, description);
     };
     // ------------------ COLOR ADJUST ------------------
@@ -907,7 +911,7 @@ var ViscaCommand = /** @class */ (function () {
             Constants_1.Constants.CAM_CHROMA_SUPPRESS,
             value
         ];
-        var description = "camera chrome suppress to " + value;
+        var description = "camera chrome suppress to ".concat(value);
         return ViscaCommand.cameraCommand(subCommand, description);
     };
     // value = 0h - Eh
@@ -916,7 +920,7 @@ var ViscaCommand = /** @class */ (function () {
             Constants_1.Constants.CAM_COLOR_GAIN,
             value
         ];
-        var description = "camera color gain to " + value;
+        var description = "camera color gain to ".concat(value);
         return ViscaCommand.cameraCommand(subCommand, description);
     };
     // value = 0h - Eh
@@ -925,7 +929,7 @@ var ViscaCommand = /** @class */ (function () {
             Constants_1.Constants.CAM_COLOR_HUE,
             value
         ];
-        var description = "camera color hue to " + value;
+        var description = "camera color hue to ".concat(value);
         return ViscaCommand.cameraCommand(subCommand, description);
     };
     return ViscaCommand;

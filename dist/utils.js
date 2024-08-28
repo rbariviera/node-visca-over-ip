@@ -26,18 +26,26 @@ var __read = (this && this.__read) || function (o, n) {
     }
     return ar;
 };
-var __spreadArray = (this && this.__spreadArray) || function (to, from) {
-    for (var i = 0, il = from.length, j = to.length; i < il; i++, j++)
-        to[j] = from[i];
-    return to;
+var __spreadArray = (this && this.__spreadArray) || function (to, from, pack) {
+    if (pack || arguments.length === 2) for (var i = 0, l = from.length, ar; i < l; i++) {
+        if (ar || !(i in from)) {
+            if (!ar) ar = Array.prototype.slice.call(from, 0, i);
+            ar[i] = from[i];
+        }
+    }
+    return to.concat(ar || Array.prototype.slice.call(from));
 };
-exports.__esModule = true;
-exports.v2i = exports.i2v = exports.v2si = exports.si2v = exports.nibbles = exports.testBit = void 0;
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.testBit = testBit;
+exports.nibbles = nibbles;
+exports.si2v = si2v;
+exports.v2si = v2si;
+exports.i2v = i2v;
+exports.v2i = v2i;
 // HELPER FUNCTIONS
 function testBit(val, mask) {
     return (val & mask) == mask;
 }
-exports.testBit = testBit;
 function nibbles(data) {
     var e_1, _a;
     var result = [];
@@ -54,13 +62,12 @@ function nibbles(data) {
     catch (e_1_1) { e_1 = { error: e_1_1 }; }
     finally {
         try {
-            if (data_1_1 && !data_1_1.done && (_a = data_1["return"])) _a.call(data_1);
+            if (data_1_1 && !data_1_1.done && (_a = data_1.return)) _a.call(data_1);
         }
         finally { if (e_1) throw e_1.error; }
     }
     return result;
 }
-exports.nibbles = nibbles;
 function si2v(value) {
     // first, handle the possibility of signed integer values
     if (value > 32767)
@@ -71,20 +78,18 @@ function si2v(value) {
         value = 0xffff + value + 1; // this is the magic
     return i2v(value);
 }
-exports.si2v = si2v;
 // data must be a buffer or array
 function v2si(data) {
     if (data.length == 2)
         data = __spreadArray([
             0,
             0
-        ], __read(data));
+        ], __read(data), false);
     var value = v2i(data);
     if (value > 32767)
         value = value - 0xffff - 1;
     return value;
 }
-exports.v2si = v2si;
 function i2v(value) {
     // return word as dword in visca format
     // packets are not allowed to be 0xff
@@ -103,17 +108,15 @@ function i2v(value) {
         s
     ];
 }
-exports.i2v = i2v;
 function v2i(data) {
     if (data.length == 2)
         data = __spreadArray([
             0,
             0
-        ], __read(data));
+        ], __read(data), false);
     var _a = __read(data, 4), p = _a[0], q = _a[1], r = _a[2], s = _a[3];
     var ls = (r << 4) | (s & 15);
     var ms = (p << 4) | (q & 15);
     return (ms << 8) | ls;
 }
-exports.v2i = v2i;
-//# sourceMappingURL=utils.js.map
+//# sourceMappingURL=Utils.js.map

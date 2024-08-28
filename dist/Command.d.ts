@@ -121,7 +121,7 @@ export declare class ViscaCommand {
     static cameraColorGain(value: number): ViscaCommand;
     static cameraColorHue(value: number): ViscaCommand;
 }
-declare type ViscaCommandEventTypes = 'error' | 'complete' | 'ack';
+type ViscaCommandEventTypes = 'error' | 'complete' | 'ack';
 export interface ViscaCommandSettings {
     messageType?: number;
     dataType?: number;
