@@ -32,7 +32,7 @@ export class ViscaCommand {
 	}
 
 	toPacket(): number[] {
-		let header = 0x81;
+		let header = 0x81; // camera ID = 1
 		let qq = this.messageType;
 		let rr = this.dataType;
 

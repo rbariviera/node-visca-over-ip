@@ -89,9 +89,42 @@ export class ViscaCamera {
 
 	//==================== Commands ====================
 
+
+	private packet_counter = 0
+
 	private sendDirect(data: ViscaCommand) {
-		let message = Buffer.from(data.toPacket());
-		this.client.send(message);
+		let payload = Buffer.from(data.toPacket());
+		const buffer = Buffer.alloc(payload.length + 8);
+
+		// add packet wrapper / prepend
+		// @link https://github.com/bitfocus/companion-module-sony-visca/blob/e334d2c0be50ba4281076c97997f48c785ccf658/src/visca.js#L22
+
+		const type = Buffer.from([data.messageType, 0x00]);
+		type.copy(buffer);
+
+
+		if (this.packet_counter == 0xffffffff) {
+			this.packet_counter = 0;
+			// Reset sequence number
+			const resetBuffer = Buffer.alloc(9);
+			resetBuffer.write('020000010000000001', 'hex');
+			this.client.send(resetBuffer);
+		}
+
+		this.packet_counter = this.packet_counter + 1;
+
+		buffer.writeUInt16BE(payload.length, 2);
+		buffer.writeUInt32BE(this.packet_counter, 4);
+
+		if (typeof payload == "string") {
+				buffer.write(payload, 8, "binary");
+		} else if (typeof payload == "object" && payload instanceof Buffer) {
+				payload.copy(buffer, 8);
+		}
+		console.log(buffer.toString("hex"))
+
+
+		this.client.send(buffer);
 	}
 
 	sendCommand(command: ViscaCommand) {
