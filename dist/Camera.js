@@ -121,7 +121,6 @@ var ViscaCamera = /** @class */ (function () {
         else if (typeof payload == "object" && payload instanceof buffer_1.Buffer) {
             payload.copy(buffer, 8);
         }
-        console.log(buffer.toString("hex"));
         this.client.send(buffer);
     };
     ViscaCamera.prototype.sendCommand = function (command) {

@@ -38,7 +38,7 @@ var __values = (this && this.__values) || function(o) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.ViscaCommand = void 0;
 var Constants_1 = require("./Constants");
-var utils = require("./Utils");
+var utils = require("./utils");
 var ViscaCommand = /** @class */ (function () {
     function ViscaCommand(settings) {
         this.messageType = settings.messageType;

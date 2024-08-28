@@ -1,5 +1,5 @@
 import { Constants as C } from './Constants';
-import * as utils from './Utils';
+import * as utils from './utils';
 
 export class ViscaCommand {
 	x;
