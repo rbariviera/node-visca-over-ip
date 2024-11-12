@@ -99,7 +99,10 @@ var ViscaCamera = /** @class */ (function () {
         this.client.connect(this.port, this.ip, function () { });
     };
     ViscaCamera.prototype.sendDirect = function (data) {
+        //console.log("Packet: ", data.toPacket());
         var payload = buffer_1.Buffer.from(data.toPacket());
+        //console.log("Payload: ", payload);
+        
         var buffer = buffer_1.Buffer.alloc(payload.length + 8);
         // add packet wrapper / prepend
         // @link https://github.com/bitfocus/companion-module-sony-visca/blob/e334d2c0be50ba4281076c97997f48c785ccf658/src/visca.js#L22
@@ -142,18 +145,22 @@ var ViscaCamera = /** @class */ (function () {
         }
         else if (command.messageType == Constants_1.Constants.MSGTYPE_COMMAND) {
             if (this.commandReady) {
+                //console.log("commandReady");
                 this.sentCommands.push(command); // not in a buffer until we get ACK
             }
             else {
+                //console.log("commandNotReady");
                 // this.commandQueue.push(command);
                 this.sentCommands.push(command); // not in a buffer until we get ACK
                 // queued = true;
             }
         }
         if (queued) {
+            //console.log("queued");
             this._scheduleUpdate();
         }
         else {
+            //console.log("not queued");
             command.sentAt = Date.now();
             this.sendDirect(command);
         }

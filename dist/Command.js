@@ -262,7 +262,7 @@ var ViscaCommand = /** @class */ (function () {
         if (speed === void 0) { speed = -1; }
         var data = offinout;
         if (speed > -1 && offinout != Constants_1.Constants.DATA_RESET)
-            data = (data << 8) + (speed & 7);
+            data = (data << 4) + (speed & 7);
         var subCommand = [
             Constants_1.Constants.CAM_ZOOM,
             data
